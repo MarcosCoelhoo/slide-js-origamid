@@ -26,7 +26,7 @@ export default class Slide {
       this.dist.startX = event.changedTouches[0].clientX;
       moveType = "touchmove";
     }
-    this.wrapper.addEventListener("mousemove", this.onMove);
+    this.wrapper.addEventListener(moveType, this.onMove);
   }
 
   onMove(event) {
@@ -57,9 +57,43 @@ export default class Slide {
     this.onEnd = this.onEnd.bind(this);
   }
 
+  // Configurações do slide
+
+  slidePosition(slide) {
+    const margin = (this.wrapper.offsetWidth - slide.offsetWidth) / 2;
+    return -(slide.offsetLeft - margin);
+  }
+
+  slidesConfig() {
+    this.slideArray = [...this.slide.children].map((element) => {
+      const position = this.slidePosition(element);
+      return {
+        position,
+        element,
+      };
+    });
+  }
+
+  slideIndexNav(index) {
+    const last = this.slideArray.length - 1;
+    this.index = {
+      prev: index ? index - 1 : undefined,
+      active: index,
+      next: index === last ? undefined : index + 1,
+    };
+  }
+
+  changeSlide(index) {
+    const activeSlide = this.slideArray[index];
+    this.moveSlide(activeSlide.position);
+    this.slideIndexNav(index);
+    this.dist.finalPosition = activeSlide.position;
+  }
+
   init() {
     this.bindEvents();
     this.addSlideEvents();
+    this.slidesConfig();
 
     return this;
   }
